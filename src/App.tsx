@@ -7,7 +7,7 @@ import Home from './pages/Home';
 export default function Main() {
   return (  
     <Provider theme={theme}>
-      <StatusBar/>
+      <StatusBar style="dark" />
       <Home />
     </Provider>
   );

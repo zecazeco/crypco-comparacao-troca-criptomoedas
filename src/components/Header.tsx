@@ -8,7 +8,7 @@ type Props = {
 export default function Header() {
   return (  
     <Appbar.Header >
-      <Appbar.Content title="Ativos" />
+      <Appbar.Content title="Portfólio" />
     </Appbar.Header>
   );
 }
