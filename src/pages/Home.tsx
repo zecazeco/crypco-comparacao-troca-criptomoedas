@@ -1,15 +1,18 @@
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet } from 'react-native';
+import { ScrollView } from 'react-native';
 import { Avatar, Card, IconButton } from 'react-native-paper';
-import Header from '../../components/Header';
+import Header from '../components/Header';
 
 export default function App() {
   return (
     <>
       <Header />
-      <ScrollView contentInsetAdjustmentBehavior="automatic" >
+      <ScrollView 
+        contentInsetAdjustmentBehavior="automatic"
+        overScrollMode='never'
+      >
         <Card.Title
-          title="Card Title"
+          title="Card Title2"
           subtitle="Card Subtitle"
           left={(props) => <Avatar.Icon {...props} icon="folder" />}
           right={(props) => <IconButton {...props} icon="dots-vertical" onPress={() => {}} />}
