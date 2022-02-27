@@ -12,7 +12,7 @@ export default function App() {
         contentInsetAdjustmentBehavior="automatic"
         overScrollMode='never'
       >
-        <Instrument code='BTC' name='Bitcoin' />
+        <Instrument code='BTC' name='Bitcoin234' />
         <Instrument code='ETH' name='Ethereum' />                   
       </ScrollView>
     </>
