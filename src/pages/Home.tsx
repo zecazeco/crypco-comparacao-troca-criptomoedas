@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 import Header from '../components/Header';
-import Instrument from '../components/Instrument';
+import Item from '../components/Item';
+import InstrumenListModal from '../modals/InstrumentsModal';
 
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import db from '../config/firebase';
 
 import * as FirestoreService from '../services/firebase';
 
-interface IInstrument {
+/* interface IInstrument {
   code: string;
   name: string;
-}
+} */
 
 export default function App() {
   const [portfolioItems, setPortfolioItems] = useState<any>([]);
@@ -26,7 +27,6 @@ export default function App() {
         setPortfolioItems(portfolioItems);
       });
     }
-
     getPortfolio();
   },[]) 
 
@@ -39,10 +39,11 @@ export default function App() {
       >
         {
           portfolioItems.length > 0 && portfolioItems.map((item: any) => (
-            <Instrument key={item.id} code={item.code} name={item.name} />
+            <Item key={item.id} code={item.code} name={item.name} />
           ))
-        }                         
+        }                       
       </ScrollView>
+      <InstrumenListModal />
     </>
   );
 }
