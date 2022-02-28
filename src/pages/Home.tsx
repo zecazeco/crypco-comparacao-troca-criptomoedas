@@ -1,21 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
-import { Avatar, Card, IconButton } from 'react-native-paper';
 import Header from '../components/Header';
 import Instrument from '../components/Instrument';
+
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 import db from '../config/firebase';
 
-export default function App() {
-  //const [instrument, setInstrument] = useState([])
+import * as FirestoreService from '../services/firebase';
 
-/*   useEffect(() => {  
-    const q = query(collection(db, 'portfolio'), orderBy('created', 'desc'))
-    onSnapshot(q, (querySnapshot) => {
-     console.log(querySnapshot.docs);
-    }) 
-  },[]) */
-    
+interface IInstrument {
+  code: string;
+  name: string;
+}
+
+export default function App() {
+  const [portfolioItems, setPortfolioItems] = useState<any>([]);
+  //const [error, setError] = useState();
+
+
+  useEffect(() => {  
+    async function getPortfolio() {
+      const portfolioSnapshot = query(collection(db, 'portfolio'));
+      onSnapshot(portfolioSnapshot, (querySnapshot) => {
+        const portfolioItems = querySnapshot.docs.map(doc => doc.data());
+        setPortfolioItems(portfolioItems);
+      });
+    }
+
+    getPortfolio();
+  },[]) 
+
   return (
     <>
       <Header />
@@ -23,8 +37,11 @@ export default function App() {
         contentInsetAdjustmentBehavior="automatic"
         overScrollMode='never'
       >
-        <Instrument code='BTC' name='Bitcoin23456' />
-        <Instrument code='ETH' name='Ethereum' />                   
+        {
+          portfolioItems.length > 0 && portfolioItems.map((item: any) => (
+            <Instrument key={item.id} code={item.code} name={item.name} />
+          ))
+        }                         
       </ScrollView>
     </>
   );
