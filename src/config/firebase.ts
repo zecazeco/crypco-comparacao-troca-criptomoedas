@@ -11,6 +11,7 @@ const firebaseConfig = {
   appId: Constants.manifest?.extra?.firebaseAppId,
 };
 
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
 
