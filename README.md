@@ -1,4 +1,4 @@
-# Comparador de criptomoedas
+# Crypco - Comparador de criptomoedas
 Aplicativo que compara algumas criptomoedas existentes no meu portfolio com as duas principais criptomoeadas do mercado (bitcoin e ethereum) ao longo do tempo e sinaliza se é um bom momento para trocar estas moedas.
 
 *EM ANDAMENTO*
