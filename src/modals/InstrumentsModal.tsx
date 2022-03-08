@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
-import { Modal, Portal, TextInput } from 'react-native-paper';
+import { Modal, Portal, TextInput, IconButton } from 'react-native-paper';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
 
@@ -11,7 +11,7 @@ type Item = {
   id: string;
   name: string;
   symbol: string;
-  image: String;
+  thumb: String;
 };
 
 /* const DATA = [
@@ -40,27 +40,38 @@ export default function InstrumenListModal() {
   const [visible, setVisible] = useState(false);
   const [coins, setCoins] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("BTC");
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
+  const handleAddInstrument = (item: Item) => {
+    console.log(item);
+  };
+
+  const handleSearchInstrument = () => {
+    loadData();
+  };
+
   const renderItem = ({ item }: { item: Item }) => (
-    <Instrument key={item.id} coin={item} />
+    <Instrument key={item.id} coin={item} onPress={() => handleAddInstrument(item)}/>
+  );
+  const renderEmptyItem = ({ item }: { item: Item }) => (
+    <Instrument key='empty' coin='empty' />
   );
 
   const keyExtractor = (item: { id: string }) => item.id;
 
   const loadData = async () => {
-    const res = await fetch(
-      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=brl&order=market_cap_desc&per_page=999&page=1&sparkline=false"
-    );
+    //const res = await fetch( "https://api.coingecko.com/api/v3/coins/markets?vs_currency=brl&order=market_cap_desc&per_page=9&page=1&sparkline=false" );
+    //const res = await fetch( "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin%2Coxbitcoin&vs_currencies=brl" );
+    const res = await fetch( `https://api.coingecko.com/api/v3/search?query=${search}` );  
     const data = await res.json();
-    setCoins(data);
+    setCoins(data.coins);
   };
 
   useEffect(() => {
-    loadData();
+    //loadData();
     const subscription = Dimensions.addEventListener(
       "change",
       ({ window, screen }) => {
@@ -81,21 +92,19 @@ export default function InstrumenListModal() {
                 label='Buscar uma moeda'
                 value={search}
                 onChangeText={(text) => setSearch(text)}
-              /> 
+              />
+              <IconButton icon="plus" onPress={handleSearchInstrument} />
             </View>
             <View style={{
               width: '100%',
               height: dimensions.window.height - 160}}>
               <FlatList
-                data={coins.filter(
-                  (coin: any) =>
-                    coin.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
-                    coin.symbol.toLocaleLowerCase().includes(search.toLocaleLowerCase())
-                )}
+                data={coins}
                 showsVerticalScrollIndicator={false}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 refreshing={refreshing}
+                //ListEmptyComponent={renderEmptyItem}
                 onRefresh={async () => {
                   setRefreshing(true);
                   await loadData();
