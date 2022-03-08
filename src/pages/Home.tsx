@@ -39,7 +39,7 @@ export default function App() {
       >
         {
           portfolioItems.length > 0 && portfolioItems.map((item: any) => (
-            <Item key={item.code} code={item.code} name={item.name} />
+            <Item key={item.symbol} coin={item} />
           ))
         }                       
       </ScrollView>

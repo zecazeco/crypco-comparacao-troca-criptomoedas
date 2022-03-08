@@ -1,17 +1,19 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { Avatar, Card, IconButton, Button, Title, Paragraph } from 'react-native-paper';
+import { Avatar, Card, IconButton } from 'react-native-paper';
+import InstrumentImage from './InstrumentImage';
 
-const instLogo = ({props}:any) => <Avatar.Icon style={styles.logo} {...props} icon="folder" />
-const actionButton = ({props}:any) => <IconButton {...props} icon="format-list-bulleted" onPress={() => {}} />
+export default function Item({ coin }: any) {
 
-export default function Item({ code, name }: any) {
+  const actionButton = ({props}:any) => <IconButton {...props} icon="format-list-bulleted" onPress={() => {}} />
+  const instImg = () => <InstrumentImage imagePath={coin.image} />
+
   return (
     <Card style={styles.card} mode='elevated' elevation={2}>
       <Card.Title
-        title={code}
-        subtitle={name}
-        left={instLogo}
+        title={coin.symbol}
+        subtitle={coin.name}
+        left={instImg}
         right={actionButton}
       />
     </Card>    
@@ -22,7 +24,4 @@ const styles = StyleSheet.create({
   card: {
     margin: 10,
   },
-  logo: {
-    paddingRight: 10,
-  }
 });
