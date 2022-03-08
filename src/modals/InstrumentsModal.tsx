@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
-import { Modal, Portal } from 'react-native-paper';
+import { Modal, Portal, TextInput } from 'react-native-paper';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
 
@@ -53,7 +53,7 @@ export default function InstrumenListModal() {
 
   const loadData = async () => {
     const res = await fetch(
-      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=3&page=1&sparkline=false"
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=brl&order=market_cap_desc&per_page=999&page=1&sparkline=false"
     );
     const data = await res.json();
     setCoins(data);
@@ -61,7 +61,6 @@ export default function InstrumenListModal() {
 
   useEffect(() => {
     loadData();
-    console.log('3');
     const subscription = Dimensions.addEventListener(
       "change",
       ({ window, screen }) => {
@@ -76,11 +75,23 @@ export default function InstrumenListModal() {
       <Portal>
         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modal}>
           <View style={styles.viewOut}>
+            <View>
+              <TextInput
+                autoComplete='off'
+                label='Buscar uma moeda'
+                value={search}
+                onChangeText={(text) => setSearch(text)}
+              /> 
+            </View>
             <View style={{
               width: '100%',
               height: dimensions.window.height - 160}}>
               <FlatList
-                data={coins}
+                data={coins.filter(
+                  (coin: any) =>
+                    coin.name.toLowerCase().includes(search.toLocaleLowerCase()) ||
+                    coin.symbol.toLocaleLowerCase().includes(search.toLocaleLowerCase())
+                )}
                 showsVerticalScrollIndicator={false}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
@@ -112,5 +123,5 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center'
-  },   
+  }, 
 });
