@@ -3,7 +3,7 @@ import { StyleSheet } from 'react-native';
 import { Avatar, Card, IconButton } from 'react-native-paper';
 import InstrumentImage from './InstrumentImage';
 
-export default function Item({ coin }: any) {
+export default function ItemPortfolio({ coin }: any) {
 
   const actionButton = ({props}:any) => <IconButton {...props} icon="format-list-bulleted" onPress={() => {}} />
   const instImg = () => <InstrumentImage imagePath={coin.image} />

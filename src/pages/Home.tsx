@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ScrollView } from 'react-native';
 import Header from '../components/Header';
-import Item from '../components/Item';
+import ItemPortfolio from '../components/ItemPortfolio';
 import InstrumenListModal from '../modals/InstrumentsModal';
 
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
@@ -39,7 +39,7 @@ export default function App() {
       >
         {
           portfolioItems.length > 0 && portfolioItems.map((item: any) => (
-            <Item key={item.symbol} coin={item} />
+            <ItemPortfolio key={item.symbol} coin={item} />
           ))
         }                       
       </ScrollView>
