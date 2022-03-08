@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
 import { Modal, Portal, TextInput, IconButton } from 'react-native-paper';
+import { addDoc, collection } from 'firebase/firestore';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
+import db from '../config/firebase';
 
 const window = Dimensions.get("window");
 const screen = Dimensions.get("screen");
@@ -46,13 +48,29 @@ export default function InstrumenListModal() {
   const hideModal = () => setVisible(false);
 
   const handleAddInstrument = (item: Item) => {
-    console.log(item);
+    handleSubmit(item);
   };
 
   const handleSearchInstrument = () => {
     loadData();
   };
 
+  const handleSubmit = async (item: Item) => {
+    try {
+      await addDoc(collection(db, 'portfolio'), {
+        symbol: item.symbol,
+        name: item.name,
+        thumb: item.thumb,
+        users: [{ 
+          userId: 'userId',
+          name: 'userName'
+        }]
+      })
+    } catch (err) {
+      alert(err)
+    }
+  }
+  
   const renderItem = ({ item }: { item: Item }) => (
     <Instrument key={item.id} coin={item} onPress={() => handleAddInstrument(item)}/>
   );
@@ -104,7 +122,7 @@ export default function InstrumenListModal() {
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
                 refreshing={refreshing}
-                //ListEmptyComponent={renderEmptyItem}
+                ListEmptyComponent={renderEmptyItem}
                 onRefresh={async () => {
                   setRefreshing(true);
                   await loadData();

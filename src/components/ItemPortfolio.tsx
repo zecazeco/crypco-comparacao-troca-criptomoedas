@@ -6,7 +6,7 @@ import InstrumentImage from './InstrumentImage';
 export default function ItemPortfolio({ coin }: any) {
 
   const actionButton = ({props}:any) => <IconButton {...props} icon="format-list-bulleted" onPress={() => {}} />
-  const instImg = () => <InstrumentImage imagePath={coin.image} />
+  const instImg = () => <InstrumentImage imagePath={coin.thumb} />
 
   return (
     <Card style={styles.card} mode='elevated' elevation={2}>
