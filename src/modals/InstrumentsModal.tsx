@@ -10,114 +10,67 @@ const screen = Dimensions.get("screen");
 type Item = {
   id: string;
   name: string;
-  code: string;
+  symbol: string;
+  image: String;
 };
 
-const DATA = [
+/* const DATA = [
   {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
+    id: 'bd7acbea-c1b1-46c2-aed123ad53abb28ba',
     name: 'First Item',
-    code: 'ABC',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    name: 'Second Item',
-    code: 'ABC',
+    symbol: 'ABC',
+    image: 'rrrrr',
   },
   {
     id: '58694a0f-3da1-471f-bd96-145571e29d72',
     name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },                                
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
-  },    
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    code: 'ABC',
+    symbol: 'ABC',
+    image: 'rrrrr',
   },  
   {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
+    id: '58694a0f-3da1-471f-bd96-145571e1272',
     name: 'ultimoooem',
-    code: 'ABC',
+    symbol: 'ABC',
+    image: 'rrrrr',
   },  
-];
-
-/* const data = Object.keys(examples).map(
-  (id): Item => ({ id, data: examples[id] })
-); */
+]; */
 
 export default function InstrumenListModal() {
   const [dimensions, setDimensions] = useState({ window, screen });
   const [visible, setVisible] = useState(false);
+  const [coins, setCoins] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [search, setSearch] = useState("");
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
   const renderItem = ({ item }: { item: Item }) => (
-    <Instrument key='{item.id}' code='codigo' name={item.name} />
+    <Instrument key={item.id} coin={item} />
   );
 
   const keyExtractor = (item: { id: string }) => item.id;
 
+  const loadData = async () => {
+    const res = await fetch(
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=3&page=1&sparkline=false"
+    );
+    const data = await res.json();
+    setCoins(data);
+  };
+
   useEffect(() => {
+    loadData();
+    console.log('3');
     const subscription = Dimensions.addEventListener(
       "change",
       ({ window, screen }) => {
         setDimensions({ window, screen });
       }
     );
-    return subscription;
-  });
-
+    return subscription; 
+  }, []);
+  
   return (
     <>
       <Portal>
@@ -127,10 +80,17 @@ export default function InstrumenListModal() {
               width: '100%',
               height: dimensions.window.height - 160}}>
               <FlatList
+                data={coins}
+                showsVerticalScrollIndicator={false}
                 renderItem={renderItem}
                 keyExtractor={keyExtractor}
-                data={DATA}
-              />  
+                refreshing={refreshing}
+                onRefresh={async () => {
+                  setRefreshing(true);
+                  await loadData();
+                  setRefreshing(false);
+                }}
+              />
             </View>
           </View>
         </Modal>
