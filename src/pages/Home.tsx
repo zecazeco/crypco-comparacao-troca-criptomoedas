@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ScrollView } from 'react-native';
 import Header from '../components/Header';
 import ItemPortfolio from '../components/ItemPortfolio';
@@ -22,6 +22,8 @@ export default function App() {
   const [priceBTC, setPriceBTC] = useState<string>('0');
   const [priceETH, setPriceETH] = useState<string>('0');
 
+  const isInitialMount = useRef(true);
+  
   const loadPrices = async () => {
     const pricesBase = await fetch( `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=brl` );
     const dataBase = await pricesBase.json();
@@ -33,32 +35,11 @@ export default function App() {
     setPrices(data);
   };
 
-  const savePrices = async () => {
-    Object.keys(prices).forEach( async (key) => {
-      let id = key;
-      let val = prices[id].brl;
-      let date = new Date();      
-      let relBTC = parseFloat(priceBTC) / parseFloat(val);
-      let relETH = parseFloat(priceETH) / parseFloat(val);
 
-      try {
-        await setDoc(doc(db, 'portfolio', id, 'prices', date.toISOString()), {
-          date: date.toLocaleDateString("pt-BR"),
-          price: val,
-          priceBTC: priceBTC,
-          priceETH: priceETH,
-          relBTC: relBTC,
-          relETH: relETH,
-        })
-      } catch (err) {
-        setError('erro');
-      }    
-    });
-  }
 
-  const calcEverything = async () => {
+ /* const calcResume = async () => {
     portfolioItems.map((item: any) => {
-      const pricesSnapshot = query(collection(db, 'portfolio', item.id, 'prices'));
+      const pricesSnapshot = query(collection(db, 'portfolio', item.id, 'resume'));
       onSnapshot(pricesSnapshot, (querySnapshot) => {
         const priceItems = querySnapshot.docs.map(doc => {
           //console.log(item.id);
@@ -67,7 +48,7 @@ export default function App() {
       });      
       
     });
-/*     const portfolioSnapshot = query(collection(db, 'portfolio'));
+     const portfolioSnapshot = query(collection(db, 'portfolio'));
     let strIds = '';
     onSnapshot(portfolioSnapshot, (querySnapshot) => {
       const portfolioItems = querySnapshot.docs.map(doc => {
@@ -76,12 +57,84 @@ export default function App() {
       });
       setStringIds(strIds);
       setPortfolioItems(portfolioItems);
-    }); */
-  }
+    }); 
+  }*/
 
   useEffect(() => {  
-    savePrices();
-    calcEverything();
+    const calcData = async () => {
+      Object.keys(prices).forEach( async (key) => {
+        let id = key;
+        let val = prices[id].brl;
+        let date = new Date();      
+        let relBTC = parseFloat(priceBTC) / parseFloat(val);
+        let relETH = parseFloat(priceETH) / parseFloat(val);
+
+        //save prices on a collection
+        try {
+          await setDoc(doc(db, 'portfolio', id, 'prices', date.toISOString()), {
+            date: date.toLocaleDateString("pt-BR"),
+            price: val,
+            priceBTC: priceBTC,
+            priceETH: priceETH,
+            relBTC: relBTC,
+            relETH: relETH,
+          })
+        } catch (err) {
+          setError('erro1');
+        } 
+        
+        //check if is min or max
+        let obj = portfolioItems.find((obj: any) => obj.id == id);
+        if (relBTC > parseFloat(obj.relMaxBTC) || parseFloat(obj.relMaxBTC) == 0) {
+          //console.log('é a maior BTC');
+          try {
+            await setDoc(doc(db, 'portfolio', obj.id), {
+              relMaxBTC: relBTC,       
+            },{merge: true})
+          } catch (err) {
+            setError('erro2');
+          }          
+        } 
+        if (relBTC < parseFloat(obj.relMinBTC) || parseFloat(obj.relMinBTC) == 0) {
+          //console.log('é a menor BTC');
+          try {
+            await setDoc(doc(db, 'portfolio', obj.id), {
+              relMinBTC: relBTC,       
+            },{merge: true})
+          } catch (err) {
+            setError('erro3');
+          }            
+        }
+        if (relETH > parseFloat(obj.relMaxETH) || parseFloat(obj.relMaxETH) == 0) {
+          //console.log('é a maior ETH');
+          try {
+            await setDoc(doc(db, 'portfolio', obj.id), {
+              relMaxETH: relETH,       
+            },{merge: true})
+          } catch (err) {
+            setError('erro4');
+          } 
+        } 
+        if (relETH < parseFloat(obj.relMinETH) || parseFloat(obj.relMinETH) == 0) {
+          //console.log('é a menor ETH');
+          try {
+            await setDoc(doc(db, 'portfolio', obj.id), {
+              relMinETH: relETH,       
+            },{merge: true})
+          } catch (err) {
+            setError('erro5');
+          }           
+        }       
+
+      });
+      
+    }    
+
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+    } else {
+      calcData();
+    }
   },[prices]) 
 
 
