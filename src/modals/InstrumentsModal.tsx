@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
 import { Modal, Portal, TextInput, IconButton } from 'react-native-paper';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
 import db from '../config/firebase';
@@ -42,7 +42,8 @@ export default function InstrumenListModal() {
   const [visible, setVisible] = useState(false);
   const [coins, setCoins] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState("BTC");
+  const [search, setSearch] = useState("digite aqui");
+  const [error, setError] = useState<string>();
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -57,17 +58,15 @@ export default function InstrumenListModal() {
 
   const handleSubmit = async (item: Item) => {
     try {
-      await addDoc(collection(db, 'portfolio'), {
+      let id = item.name.toLowerCase();
+      await setDoc(doc(db, 'portfolio', id), {
+        id: id,
         symbol: item.symbol,
         name: item.name,
         thumb: item.thumb,
-        users: [{ 
-          userId: 'userId',
-          name: 'userName'
-        }]
       })
     } catch (err) {
-      alert(err)
+      setError('erro');
     }
   }
   
