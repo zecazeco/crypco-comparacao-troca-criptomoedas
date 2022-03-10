@@ -42,9 +42,9 @@ const styles = StyleSheet.create({
     aligItems: 'center',  
     height: 36,
     textAlign: 'center',
-    textAlignVertical: 'middle',
-    paddingTop: 7,
-    paddingBottom: 7,
+    textAlignVertical: 'center',
+    paddingTop: 5,
+    paddingBottom: 5,
     fontSize: 12,
   },
   relTitle: {
