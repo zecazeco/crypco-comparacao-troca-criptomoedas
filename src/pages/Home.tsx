@@ -86,11 +86,16 @@ export default function App() {
         //check if is min or max
         let obj = portfolioItems.find((obj: any) => obj.id == id);
 
-        //salva relaçao atual no portfolio
+        //salva porcentagem da relaçao atual no portfolio
+        let maxMinBTC = (parseFloat(obj.relMaxBTC) - parseFloat(obj.relMinBTC));
+        let percBTC = 100 - (((relBTC - parseFloat(obj.relMinBTC)) * 100) / maxMinBTC);
+        let maxMinETH = (parseFloat(obj.relMaxETH) - parseFloat(obj.relMinETH));
+        let percETH = 100 - (((relETH - parseFloat(obj.relMinETH)) * 100) / maxMinETH);
+
         try {
           await setDoc(doc(db, 'portfolio', obj.id), {
-            actualRelBTC: relBTC,
-            actualRelETH: relETH,     
+            actualRelBTC: percBTC,
+            actualRelETH: percETH,     
           },{merge: true})
         } catch (err) {
           setError('erro6');
