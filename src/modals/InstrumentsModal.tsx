@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
-import { Modal, Portal, TextInput, IconButton } from 'react-native-paper';
+import { Modal, Portal, TextInput, IconButton, Searchbar } from 'react-native-paper';
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
@@ -42,7 +42,7 @@ export default function InstrumenListModal() {
   const [visible, setVisible] = useState(false);
   const [coins, setCoins] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [search, setSearch] = useState("digite aqui");
+  const [search, setSearch] = useState("");
   const [error, setError] = useState<string>();
 
   const showModal = () => setVisible(true);
@@ -110,13 +110,13 @@ export default function InstrumenListModal() {
         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modal}>
           <View style={styles.viewOut}>
             <View>
-              <TextInput
+              <Searchbar
                 autoComplete='off'
-                label='Buscar uma moeda'
-                value={search}
+                placeholder="Buscar uma moeda"
                 onChangeText={(text) => setSearch(text)}
+                value={search}
+                onIconPress={handleSearchInstrument}
               />
-              <IconButton icon="plus" onPress={handleSearchInstrument} />
             </View>
             <View style={{
               width: '100%',
