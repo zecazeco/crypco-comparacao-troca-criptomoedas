@@ -82,9 +82,20 @@ export default function App() {
         } catch (err) {
           setError('erro1');
         } 
-        
+
         //check if is min or max
         let obj = portfolioItems.find((obj: any) => obj.id == id);
+
+        //salva relaçao atual no portfolio
+        try {
+          await setDoc(doc(db, 'portfolio', obj.id), {
+            actualRelBTC: relBTC,
+            actualRelETH: relETH,     
+          },{merge: true})
+        } catch (err) {
+          setError('erro6');
+        }   
+
         if (relBTC > parseFloat(obj.relMaxBTC) || parseFloat(obj.relMaxBTC) == 0) {
           //console.log('é a maior BTC');
           try {

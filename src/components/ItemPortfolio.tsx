@@ -10,10 +10,10 @@ export default function ItemPortfolio({ coin }: any) {
     return (
       <View style={styles.view}>
         <Text style={styles.rel}>BTC:
-          <Title style={styles.relTitle}>25</Title>
+          <Title style={styles.relTitle}>{coin.actualRelBTC}</Title>
         </Text>
         <Text style={styles.rel}>ETH:
-          <Title style={styles.relTitle}>25</Title>
+          <Title style={styles.relTitle}>{coin.actualRelETH}</Title>
         </Text>
         <IconButton icon="chart-line-variant" onPress={() => {}} />
       </View>

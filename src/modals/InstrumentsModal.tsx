@@ -67,7 +67,9 @@ export default function InstrumenListModal() {
         relMinBTC: '0',
         relMaxBTC: '0',
         relMinETH: '0',
-        relMaxETH: '0',        
+        relMaxETH: '0', 
+        actualRelETH: '0',
+        actualRelBTH: '0',              
       })
     } catch (err) {
       setError('erro');
