@@ -91,11 +91,11 @@ export default function App() {
         let percBTC = 100 - (((relBTC - parseFloat(obj.relMinBTC)) * 100) / maxMinBTC);
         let maxMinETH = (parseFloat(obj.relMaxETH) - parseFloat(obj.relMinETH));
         let percETH = 100 - (((relETH - parseFloat(obj.relMinETH)) * 100) / maxMinETH);
-/*         console.log('relMaxBTC' + parseFloat(obj.relMaxBTC));
+        console.log('relMaxBTC' + parseFloat(obj.relMaxBTC));
         console.log('relMinBTC' + parseFloat(obj.relMinBTC));
         console.log('relBTC' + relBTC);
         console.log('maxMinBTC' + maxMinBTC);
-        console.log('percBTC' + percBTC.toFixed(1)); */
+        console.log('percBTC' + percBTC.toFixed(1)); 
         try {
           await setDoc(doc(db, 'portfolio', obj.id), {
             relPercBTC: percBTC.toFixed(1),
