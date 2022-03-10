@@ -71,7 +71,7 @@ export default function App() {
 
         //save prices on a collection
         try {
-          await setDoc(doc(db, 'portfolio', id, 'prices', date.toISOString()), {
+          await setDoc(doc(db, 'portfolio', id, 'history', date.toISOString()), {
             date: date.toLocaleDateString("pt-BR"),
             price: val,
             priceBTC: priceBTC,
