@@ -19,8 +19,8 @@ export default function App() {
   const [error, setError] = useState<string>();
   const [stringIds, setStringIds] = useState<string>();
   const [prices, setPrices] = useState<any>([]);
-  const [priceBTC, setPriceBTC] = useState<string>('0');
-  const [priceETH, setPriceETH] = useState<string>('0');
+  const [priceBTC, setPriceBTC] = useState<number>(0);
+  const [priceETH, setPriceETH] = useState<number>(0);
 
   const isInitialMount = useRef(true);
   
@@ -67,10 +67,10 @@ export default function App() {
         let id = key;
         let val = prices[id].brl;
         let date = new Date();      
-        let relBTC = parseFloat(priceBTC) / parseFloat(val);
-        let relETH = parseFloat(priceETH) / parseFloat(val);
+        let relBTC = priceBTC / parseFloat(val);
+        let relETH = priceETH / parseFloat(val);
 
-        //save prices on a collection
+        //save prices on history collection
         try {
           setDoc(doc(db, 'portfolio', id, 'history', date.toISOString()), {
             date: date.toLocaleDateString("pt-BR"),
@@ -82,71 +82,88 @@ export default function App() {
           })
         } catch (err) {
           setError('erro1');
-        } 
+        }  
 
+        //save actual data
         //check if is min or max
         let obj = portfolioItems.find((obj: any) => obj.id == id);
 
-        if (relBTC > parseFloat(obj.relMaxBTC) || parseFloat(obj.relMaxBTC) == 0) {
+        if (relBTC > (obj.actualBTC.relMax) || (obj.actualBTC.relMax) == 0) {
           //console.log('é a maior BTC');
           try {
             setDoc(doc(db, 'portfolio', obj.id), {
-              relMaxBTC: relBTC,       
-            },{merge: true});
-            console.log('1');
+              actualBTC: {
+                relMax: relBTC,
+              },      
+            },{merge: true});            
           } catch (err) {
             setError('erro2');
           }          
         } 
-        if (relBTC < parseFloat(obj.relMinBTC) || parseFloat(obj.relMinBTC) == 0) {
+        if (relBTC < (obj.actualBTC.relMin) || (obj.actualBTC.relMin) == 0) {
           //console.log('é a menor BTC');
           try {
             setDoc(doc(db, 'portfolio', obj.id), {
-              relMinBTC: relBTC,       
-            },{merge: true});
-            console.log('2');
+              actualBTC: {
+                relMin: relBTC,
+              },      
+            },{merge: true});              
           } catch (err) {
             setError('erro3');
           }            
         }
-        if (relETH > parseFloat(obj.relMaxETH) || parseFloat(obj.relMaxETH) == 0) {
+        if (relETH > (obj.actualETH.relMax) || (obj.actualETH.relMax) == 0) {
           //console.log('é a maior ETH');
           try {
             setDoc(doc(db, 'portfolio', obj.id), {
-              relMaxETH: relETH,       
-            },{merge: true});
-            console.log('3');
+              actualETH: {
+                relMax: relETH,
+              },      
+            },{merge: true});              
           } catch (err) {
             setError('erro4');
           } 
         } 
-        if (relETH < parseFloat(obj.relMinETH) || parseFloat(obj.relMinETH) == 0) {
+        if (relETH < (obj.actualETH.relMin) || (obj.actualETH.relMin) == 0) {
           //console.log('é a menor ETH');
           try {
             setDoc(doc(db, 'portfolio', obj.id), {
-              relMinETH: relETH,       
-            },{merge: true});
-            console.log('4');
+              actualETH: {
+                relMin: relETH,
+              },      
+            },{merge: true});               
           } catch (err) {
             setError('erro5');
           }           
         }       
 
         //salva porcentagem da relaçao atual no portfolio
-        let maxMinBTC = (parseFloat(obj.relMaxBTC) - parseFloat(obj.relMinBTC));
-        let percBTC = maxMinBTC != 0 ? 100 - (((relBTC - parseFloat(obj.relMinBTC)) * 100) / maxMinBTC) : 100;
-        let maxMinETH = (parseFloat(obj.relMaxETH) - parseFloat(obj.relMinETH));
-        let percETH = maxMinETH != 0 ? 100 - (((relETH - parseFloat(obj.relMinETH)) * 100) / maxMinETH) : 100;        
-
+        let maxMinBTC = ((obj.actualBTC.relMax) - (obj.actualBTC.relMin));
+        let percBTC = maxMinBTC != 0 ? 100 - (((relBTC - (obj.actualBTC.relMin)) * 100) / maxMinBTC) : 100;
+        let maxMinETH = ((obj.actualETH.relMax) - (obj.actualETH.relMin));
+        let percETH = maxMinETH != 0 ? 100 - (((relETH - (obj.actualETH.relMin)) * 100) / maxMinETH) : 100;        
+        console.log('obj.relMaxBTC ' + obj.relMaxBTC);
+        console.log('obj.relMinBTC ' + obj.relMinBTC);
+        console.log('maxMinBTC ' + maxMinBTC);
+        console.log('relBTC ' + relBTC);
         try {
           setDoc(doc(db, 'portfolio', obj.id), {
-            relPercBTC: percBTC.toFixed(1),
-            relPercETH: percETH.toFixed(1),     
-          },{merge: true});
-          console.log('5');
+            actualBTC: {
+              price: priceBTC,
+              rel: relBTC,
+              relPerc: parseFloat(percBTC.toFixed(1)),
+            },             
+            actualETH: {
+              price: priceETH,
+              rel: relETH,
+              relPerc: parseFloat(percETH.toFixed(1)),
+            }, 
+            actualPrice: val,                
+          },{merge: true});            
         } catch (err) {
           setError('erro6');
-        }   
+        } 
+
       });
       console.log('end refresh');
     }    

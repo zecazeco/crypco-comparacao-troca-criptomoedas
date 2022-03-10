@@ -14,6 +14,7 @@ type Item = {
   name: string;
   symbol: string;
   thumb: String;
+  price: String;
 };
 
 /* const DATA = [
@@ -64,12 +65,27 @@ export default function InstrumenListModal() {
         symbol: item.symbol,
         name: item.name,
         thumb: item.thumb,
-        relMinBTC: '0',
+        actualPrice: 0,
+        actualBTC: {
+          price: 0,
+          rel: 0,
+          relMin: 0,
+          relMax: 0,
+          relPerc: 0,
+        },
+        actualETH: {
+          price: 0,
+          rel: 0,
+          relMin: 0,
+          relMax: 0,
+          relPerc: 0,
+        }               
+/*         relMinBTC: '0',
         relMaxBTC: '0',
         relMinETH: '0',
         relMaxETH: '0', 
         relPercETH: '0',
-        relPercBTC: '0',              
+        relPercBTC: '0',  */             
       })
     } catch (err) {
       setError('erro');
