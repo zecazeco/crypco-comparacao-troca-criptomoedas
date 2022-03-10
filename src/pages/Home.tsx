@@ -86,25 +86,6 @@ export default function App() {
         //check if is min or max
         let obj = portfolioItems.find((obj: any) => obj.id == id);
 
-        //salva porcentagem da relaçao atual no portfolio
-        let maxMinBTC = (parseFloat(obj.relMaxBTC) - parseFloat(obj.relMinBTC));
-        let percBTC = 100 - (((relBTC - parseFloat(obj.relMinBTC)) * 100) / maxMinBTC);
-        let maxMinETH = (parseFloat(obj.relMaxETH) - parseFloat(obj.relMinETH));
-        let percETH = 100 - (((relETH - parseFloat(obj.relMinETH)) * 100) / maxMinETH);
-        console.log('relMaxBTC' + parseFloat(obj.relMaxBTC));
-        console.log('relMinBTC' + parseFloat(obj.relMinBTC));
-        console.log('relBTC' + relBTC);
-        console.log('maxMinBTC' + maxMinBTC);
-        console.log('percBTC' + percBTC.toFixed(1)); 
-        try {
-          await setDoc(doc(db, 'portfolio', obj.id), {
-            relPercBTC: percBTC.toFixed(1),
-            relPercETH: percETH.toFixed(1),     
-          },{merge: true})
-        } catch (err) {
-          setError('erro6');
-        }   
-
         if (relBTC > parseFloat(obj.relMaxBTC) || parseFloat(obj.relMaxBTC) == 0) {
           //console.log('é a maior BTC');
           try {
@@ -146,6 +127,21 @@ export default function App() {
           }           
         }       
 
+        //salva porcentagem da relaçao atual no portfolio
+        let maxMinBTC = (parseFloat(obj.relMaxBTC) - parseFloat(obj.relMinBTC));
+        let percBTC = maxMinBTC != 0 ? 100 - (((relBTC - parseFloat(obj.relMinBTC)) * 100) / maxMinBTC) : 100;
+        let maxMinETH = (parseFloat(obj.relMaxETH) - parseFloat(obj.relMinETH));
+        //let percETH = 100 - (((relETH - parseFloat(obj.relMinETH)) * 100) / maxMinETH);
+        let percETH = maxMinETH != 0 ? 100 - (((relETH - parseFloat(obj.relMinETH)) * 100) / maxMinETH) : 100;        
+
+        try {
+          await setDoc(doc(db, 'portfolio', obj.id), {
+            relPercBTC: percBTC.toFixed(1),
+            relPercETH: percETH.toFixed(1),     
+          },{merge: true})
+        } catch (err) {
+          setError('erro6');
+        }   
       });
       
     }    
@@ -173,6 +169,15 @@ export default function App() {
     }
     getPortfolio();
   },[]) 
+
+/*   useEffect(() => {  
+    portfolioItems.map((doc: any) => {
+      console.log(doc);
+      console.log(doc.relPercBTC);
+      console.log(doc.relPercETH);
+      console.log(doc.name);
+    });
+  },[portfolioItems])  */
 
   return (
     <>
