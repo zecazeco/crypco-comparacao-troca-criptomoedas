@@ -9,6 +9,9 @@ export default function ItemPortfolio({ coin }: any) {
   const instData = ({props}:any) => { 
     return (
       <View style={styles.view}>
+        <Text style={styles.rel}>price:
+          <Title style={styles.relTitle}>R${(coin.actualPrice).toFixed(2)}</Title>
+        </Text>        
         <Text style={styles.rel}>BTC:
           <Title style={styles.relTitle}>{(coin.actualBTC.relPerc)}</Title>
         </Text>
@@ -37,7 +40,7 @@ const styles = StyleSheet.create({
   },
   rel: {
     margin: 6,
-    marginRight: 40,
+    marginRight: 20,
     justifyContent: 'center',
     aligItems: 'center',  
     height: 36,
@@ -45,10 +48,10 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center',
     paddingTop: 5,
     paddingBottom: 5,
-    fontSize: 12,
+    fontSize: 10,
   },
   relTitle: {
-    marginLeft: 10,
+    marginLeft: 5,
   },    
   view: {
     flexDirection: "row",
