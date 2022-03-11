@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
-import { Modal, Portal, Searchbar, Card, Title } from 'react-native-paper';
+import { Modal, Portal, Searchbar, Card, Title, Snackbar } from 'react-native-paper';
 import { doc, setDoc } from 'firebase/firestore';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
@@ -17,30 +17,10 @@ type Item = {
   price: String;
 };
 
-/* const DATA = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed123ad53abb28ba',
-    name: 'First Item',
-    symbol: 'ABC',
-    image: 'rrrrr',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    name: 'Third Item',
-    symbol: 'ABC',
-    image: 'rrrrr',
-  },  
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e1272',
-    name: 'ultimoooem',
-    symbol: 'ABC',
-    image: 'rrrrr',
-  },  
-]; */
-
 export default function InstrumenListModal() {
   const [dimensions, setDimensions] = useState({ window, screen });
   const [visible, setVisible] = useState(false);
+  const [visibleSnack, setVisibleSnack] = useState(false);
   const [coins, setCoins] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState("");
@@ -48,6 +28,9 @@ export default function InstrumenListModal() {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
+
+  const showSnack = () => setVisibleSnack(true);
+  const hideSnack = () => setVisibleSnack(false);
 
   const handleAddInstrument = (item: Item) => {
     handleSubmit(item);
@@ -79,14 +62,9 @@ export default function InstrumenListModal() {
           relMin: 0,
           relMax: 0,
           relPerc: 0,
-        }               
-/*         relMinBTC: '0',
-        relMaxBTC: '0',
-        relMinETH: '0',
-        relMaxETH: '0', 
-        relPercETH: '0',
-        relPercBTC: '0',  */             
+        }                          
       })
+      showSnack();
     } catch (err) {
       setError('erro');
     }
@@ -160,6 +138,9 @@ export default function InstrumenListModal() {
                   </Card> 
                 }
             </View>
+            <Snackbar visible={visibleSnack} onDismiss={hideSnack} duration={1800}>
+              Moeda adicionada com sucesso!
+            </Snackbar>            
           </View>
         </Modal>
       </Portal>
