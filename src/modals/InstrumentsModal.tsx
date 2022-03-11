@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
-import { Modal, Portal, TextInput, IconButton, Searchbar } from 'react-native-paper';
-import { addDoc, collection, doc, setDoc } from 'firebase/firestore';
+import { Modal, Portal, Searchbar, Card, Title } from 'react-native-paper';
+import { doc, setDoc } from 'firebase/firestore';
 import AddFab from '../components/AddFab';
 import Instrument from '../components/Instrument';
 import db from '../config/firebase';
@@ -124,7 +124,7 @@ export default function InstrumenListModal() {
     <>
       <Portal>
         <Modal visible={visible} onDismiss={hideModal} contentContainerStyle={styles.modal}>
-          <View style={styles.viewOut}>
+          <View style={styles.viewOut}>          
             <View>
               <Searchbar
                 autoComplete='off'
@@ -136,20 +136,29 @@ export default function InstrumenListModal() {
             </View>
             <View style={{
               width: '100%',
-              height: dimensions.window.height - 160}}>
-              <FlatList
-                data={coins}
-                showsVerticalScrollIndicator={false}
-                renderItem={renderItem}
-                keyExtractor={keyExtractor}
-                refreshing={refreshing}
-                ListEmptyComponent={renderEmptyItem}
-                onRefresh={async () => {
-                  setRefreshing(true);
-                  await loadData();
-                  setRefreshing(false);
-                }}
-              />
+              height: dimensions.window.height - 200}}>
+                {
+                  coins.length > 0 ?
+                  <FlatList
+                    data={coins}
+                    showsVerticalScrollIndicator={false}
+                    renderItem={renderItem}
+                    keyExtractor={keyExtractor}
+                    refreshing={refreshing}
+                    ListEmptyComponent={renderEmptyItem}
+                    onRefresh={async () => {
+                      setRefreshing(true);
+                      await loadData();
+                      setRefreshing(false);
+                    }}
+                  />
+                  : 
+                  <Card style={styles.card} mode='elevated' elevation={2}>
+                    <Card.Content>
+                      <Title>Nenhum item encontrado</Title>
+                    </Card.Content>
+                  </Card> 
+                }
             </View>
           </View>
         </Modal>
@@ -172,4 +181,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   }, 
+  card: {
+    margin: 10,
+  },    
 });
