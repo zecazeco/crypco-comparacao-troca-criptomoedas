@@ -9,181 +9,144 @@ import db from '../config/firebase';
 
 import * as FirestoreService from '../services/firebase';
 
-/* interface IInstrument {
-  code: string;
-  name: string;
-} */
-
 export default function App() {
   const [portfolioItems, setPortfolioItems] = useState<any>([]);
   const [error, setError] = useState<string>();
   const [stringIds, setStringIds] = useState<string>();
-  const [prices, setPrices] = useState<any>([]);
-  const [priceBTC, setPriceBTC] = useState<number>(0);
-  const [priceETH, setPriceETH] = useState<number>(0);
-
-  const isInitialMount = useRef(true);
   
-  const loadPrices = async () => {
+  const refreshValues = async () => {
     const pricesBase = await fetch( `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=brl` );
-    const dataBase = await pricesBase.json();
-    setPriceBTC(dataBase.bitcoin.brl);
-    setPriceETH(dataBase.ethereum.brl);
+    const dataBTCETH = await pricesBase.json();
+    let priceBTC = dataBTCETH.bitcoin.brl;
+    let priceETH = dataBTCETH.ethereum.brl;
 
     const res = await fetch( `https://api.coingecko.com/api/v3/simple/price?ids=${stringIds}&vs_currencies=brl` );
     const data = await res.json();
-    setPrices(data);
-  };
 
+    Object.entries(data).map( async (item: any) => {
+      let id = item[0];
+      let val = item[1].brl;
+      let date = new Date();      
+      let relBTC = priceBTC / parseFloat(val);
+      let relETH = priceETH / parseFloat(val);   
 
-
- /* const calcResume = async () => {
-    portfolioItems.map((item: any) => {
-      const pricesSnapshot = query(collection(db, 'portfolio', item.id, 'resume'));
-      onSnapshot(pricesSnapshot, (querySnapshot) => {
-        const priceItems = querySnapshot.docs.map(doc => {
-          //console.log(item.id);
-          //console.log(doc.data());
-        });
-      });      
-      
-    });
-     const portfolioSnapshot = query(collection(db, 'portfolio'));
-    let strIds = '';
-    onSnapshot(portfolioSnapshot, (querySnapshot) => {
-      const portfolioItems = querySnapshot.docs.map(doc => {
-        strIds += `${doc.data().id},`;
-        return doc.data();
-      });
-      setStringIds(strIds);
-      setPortfolioItems(portfolioItems);
-    }); 
-  }*/
-
-  useEffect(() => {  
-    const calcData = async () => {
-      console.log('ini refresh');
-      Object.keys(prices).forEach((key) => {
-        let id = key;
-        let val = prices[id].brl;
-        let date = new Date();      
-        let relBTC = priceBTC / parseFloat(val);
-        let relETH = priceETH / parseFloat(val);
-
+      try {
         //save prices on history collection
+        await setDoc(doc(db, 'portfolio', id, 'history', date.toISOString()), {
+          date: date.toLocaleDateString("pt-BR"),
+          price: val,
+          priceBTC: priceBTC,
+          priceETH: priceETH,
+          relBTC: relBTC,
+          relETH: relETH,
+        })
+        //sava actual data
+        await setDoc(doc(db, 'portfolio', id), {
+          actualBTC: {
+            price: priceBTC,
+            rel: relBTC,
+          },             
+          actualETH: {
+            price: priceETH,
+            rel: relETH,
+          }, 
+          actualPrice: val,                
+        },{merge: true});         
+      } catch (err) {
+        setError('erro1');
+      } 
+
+      //check if is min or max
+      let obj = portfolioItems.find((obj: any) => obj.id == id);
+
+      let maxBTC = obj.actualBTC.relMax;
+      let minBTC = obj.actualBTC.relMin;
+      let maxETH = obj.actualETH.relMax;
+      let minETH = obj.actualETH.relMin;
+
+      if (relBTC > (obj.actualBTC.relMax) || (obj.actualBTC.relMax) == 0) {
+        //console.log('é a maior BTC');
+        maxBTC = relBTC;
         try {
-          setDoc(doc(db, 'portfolio', id, 'history', date.toISOString()), {
-            date: date.toLocaleDateString("pt-BR"),
-            price: val,
-            priceBTC: priceBTC,
-            priceETH: priceETH,
-            relBTC: relBTC,
-            relETH: relETH,
-          })
-        } catch (err) {
-          setError('erro1');
-        }  
-
-        //save actual data
-        //check if is min or max
-        let obj = portfolioItems.find((obj: any) => obj.id == id);
-
-        if (relBTC > (obj.actualBTC.relMax) || (obj.actualBTC.relMax) == 0) {
-          //console.log('é a maior BTC');
-          try {
-            setDoc(doc(db, 'portfolio', obj.id), {
-              actualBTC: {
-                relMax: relBTC,
-              },      
-            },{merge: true});            
-          } catch (err) {
-            setError('erro2');
-          }          
-        } 
-        if (relBTC < (obj.actualBTC.relMin) || (obj.actualBTC.relMin) == 0) {
-          //console.log('é a menor BTC');
-          try {
-            setDoc(doc(db, 'portfolio', obj.id), {
-              actualBTC: {
-                relMin: relBTC,
-              },      
-            },{merge: true});              
-          } catch (err) {
-            setError('erro3');
-          }            
-        }
-        if (relETH > (obj.actualETH.relMax) || (obj.actualETH.relMax) == 0) {
-          //console.log('é a maior ETH');
-          try {
-            setDoc(doc(db, 'portfolio', obj.id), {
-              actualETH: {
-                relMax: relETH,
-              },      
-            },{merge: true});              
-          } catch (err) {
-            setError('erro4');
-          } 
-        } 
-        if (relETH < (obj.actualETH.relMin) || (obj.actualETH.relMin) == 0) {
-          //console.log('é a menor ETH');
-          try {
-            setDoc(doc(db, 'portfolio', obj.id), {
-              actualETH: {
-                relMin: relETH,
-              },      
-            },{merge: true});               
-          } catch (err) {
-            setError('erro5');
-          }           
-        }       
-
-        //salva porcentagem da relaçao atual no portfolio
-        let maxMinBTC = ((obj.actualBTC.relMax) - (obj.actualBTC.relMin));
-        let percBTC = maxMinBTC != 0 ? 100 - (((relBTC - (obj.actualBTC.relMin)) * 100) / maxMinBTC) : 100;
-        let maxMinETH = ((obj.actualETH.relMax) - (obj.actualETH.relMin));
-        let percETH = maxMinETH != 0 ? 100 - (((relETH - (obj.actualETH.relMin)) * 100) / maxMinETH) : 100;        
-        console.log('obj.relMaxBTC ' + obj.relMaxBTC);
-        console.log('obj.relMinBTC ' + obj.relMinBTC);
-        console.log('maxMinBTC ' + maxMinBTC);
-        console.log('relBTC ' + relBTC);
-        try {
-          setDoc(doc(db, 'portfolio', obj.id), {
+          await setDoc(doc(db, 'portfolio', obj.id), {
             actualBTC: {
-              price: priceBTC,
-              rel: relBTC,
-              relPerc: parseFloat(percBTC.toFixed(1)),
-            },             
+              relMax: maxBTC,
+            },      
+          },{merge: true});           
+        } catch (err) {
+          setError('erro2');
+        }          
+      } 
+      if (relBTC < (obj.actualBTC.relMin) || (obj.actualBTC.relMin) == 0) {
+        //console.log('é a menor BTC');
+        minBTC = relBTC; 
+        try {
+          await setDoc(doc(db, 'portfolio', obj.id), {
+            actualBTC: {
+              relMin: minBTC,
+            },      
+          },{merge: true});              
+        } catch (err) {
+          setError('erro3');
+        }            
+      }
+      if (relETH > (obj.actualETH.relMax) || (obj.actualETH.relMax) == 0) {
+        //console.log('é a maior ETH');
+        maxETH = relETH; 
+        try {
+          await setDoc(doc(db, 'portfolio', obj.id), {
             actualETH: {
-              price: priceETH,
-              rel: relETH,
-              relPerc: parseFloat(percETH.toFixed(1)),
-            }, 
-            actualPrice: val,                
+              relMax: maxETH,
+            },      
           },{merge: true});            
         } catch (err) {
-          setError('erro6');
-        } 
+          setError('erro4');
+        }
+      } 
+      if (relETH < (obj.actualETH.relMin) || (obj.actualETH.relMin) == 0) {
+        //console.log('é a menor ETH');
+        minETH = relETH; 
+        try {
+          await setDoc(doc(db, 'portfolio', obj.id), {
+            actualETH: {
+              relMin: minETH,
+            },      
+          },{merge: true});             
+        } catch (err) {
+          setError('erro5');
+        }           
+      } 
 
-      });
-      console.log('end refresh');
-    }    
+      //salva porcentagem da relaçao atual no portfolio
+      let maxMinBTC = maxBTC - minBTC;
+      let percBTC = maxMinBTC != 0 ? 100 - (((relBTC - minBTC) * 100) / maxMinBTC) : 100;
+      let maxMinETH = maxETH - minETH;
+      let percETH = maxMinETH != 0 ? 100 - (((relETH - (minETH)) * 100) / maxMinETH) : 100;        
 
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-    } else {
-      calcData();
-    }
-  },[prices]) 
+      try {
+        await setDoc(doc(db, 'portfolio', obj.id), {
+          actualBTC: {
+            relPerc: parseFloat(percBTC.toFixed(1)),
+          },             
+          actualETH: {
+            relPerc: parseFloat(percETH.toFixed(1)),
+          },                 
+        },{merge: true});            
+      } catch (err) {
+        setError('erro6');
+      } 
 
+    }) 
+  };
 
   useEffect(() => {  
     async function getPortfolio() {
       const portfolioSnapshot = query(collection(db, 'portfolio'));
-      let strIds = '';
       onSnapshot(portfolioSnapshot, (querySnapshot) => {
-        const items = querySnapshot.docs.map(doc => {
-          strIds += `${doc.data().id},`;
-          return doc.data();
+        let strIds = '';
+        const items = querySnapshot.docs.map(document => {
+          strIds += `${document.data().id},`;
+          return document.data();
         });
         setStringIds(strIds);
         setPortfolioItems(items);
@@ -193,16 +156,13 @@ export default function App() {
 
   },[]) 
 
-/*   useEffect(() => {  
-    function displayTime() {
-      console.log(portfolioItems);
-     }
-    const createClock = setInterval(displayTime, 5000);    
-  },[portfolioItems])   */
+  useEffect(() => {  
+    console.log('update teste');
+  }) 
 
   return (
     <>
-      <Header onPress={loadPrices} />
+      <Header onPress={refreshValues} />
       <ScrollView 
         contentInsetAdjustmentBehavior="automatic"
         overScrollMode='never'

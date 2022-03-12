@@ -42,7 +42,7 @@ export default function InstrumenListModal() {
 
   const handleSubmit = async (item: Item) => {
     try {
-      let id = item.name.toLowerCase();
+      let id = item.id;
       await setDoc(doc(db, 'portfolio', id), {
         id: id,
         symbol: item.symbol,
